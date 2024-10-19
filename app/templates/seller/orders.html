@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>My Orders</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Buyer</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.product.name }}</td>
+                <td>{{ order.user.username }}</td>
+                <td>{{ order.status }}</td>
+                <td>
+                    {% if order.status == 'pending' %}
+                    <form action="{{ url_for('seller.accept_order', id=order.id) }}" method="post" style="display: inline;">
+                        <button type="submit">Accept</button>
+                    </form>
+                    <form action="{{ url_for('seller.reject_order', id=order.id) }}" method="post" style="display: inline;">
+                        <button type="submit">Reject</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

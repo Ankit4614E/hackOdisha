@@ -13,20 +13,26 @@
             <div class="flex justify-between">
                 <div class="flex space-x-7">
                     <div>
-                        <a href="/" class="flex items-center py-4 px-2">
+                        <a href="{{ url_for('main.index') }}" class="flex items-center py-4 px-2">
                             <i class="fas fa-bolt mr-2"></i>
                             <span class="font-semibold text-lg">QuickShop</span>
                         </a>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a href="/" class="py-4 px-2 hover:text-gray-200">Home</a>
-                    <a href="/categories" class="py-4 px-2 hover:text-gray-200">Categories</a>
-                    <a href="/deals" class="py-4 px-2 hover:text-gray-200">Deals</a>
-                    <a href="/cart" class="py-4 px-2 hover:text-gray-200">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span id="cart-count" class="bg-red-500 text-white rounded-full px-2 py-1 text-xs">0</span>
-                    </a>
+                    <a href="{{ url_for('main.index') }}" class="py-4 px-2 hover:text-gray-200">Home</a>
+                    <a href="#" class="py-4 px-2 hover:text-gray-200">Categories</a>
+                    <a href="#" class="py-4 px-2 hover:text-gray-200">Deals</a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.cart') }}" class="py-4 px-2 hover:text-gray-200">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cart-count" class="bg-red-500 text-white rounded-full px-2 py-1 text-xs">0</span>
+                        </a>
+                        <a href="{{ url_for('main.logout') }}" class="py-4 px-2 hover:text-gray-200">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('main.login') }}" class="py-4 px-2 hover:text-gray-200">Login</a>
+                        <a href="{{ url_for('main.register') }}" class="py-4 px-2 hover:text-gray-200">Register</a>
+                    {% endif %}
                     <div class="relative">
                         <input type="text" id="search" placeholder="Search" class="py-2 px-3 rounded-lg border-2 border-gray-200 focus:outline-none focus:border-indigo-500 text-gray-700">
                         <div id="search-results" class="absolute z-10 bg-white border border-gray-200 mt-1 w-full rounded-lg shadow-lg hidden"></div>
@@ -36,14 +42,19 @@
         </div>
     </nav>
 
-    <div class="bg-gray-200 py-2">
-        <div class="max-w-7xl mx-auto px-4 flex items-center">
-            <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-            <span id="user-location" class="text-sm">Detecting your location...</span>
-        </div>
-    </div>
-
     <div class="container mx-auto mt-8 px-4">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="bg-blue-100 border-t border-b border-blue-500 text-blue-700 px-4 py-3" role="alert">
+                <ul class="list-disc list-inside">
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </div>
 
@@ -74,16 +85,6 @@
             </div>
         </div>
     </footer>
-
-    <div id="order-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-xl">
-            <h2 class="text-2xl font-bold mb-4">Placing Your Order</h2>
-            <p class="mb-4">We're finding the nearest store to fulfill your order...</p>
-            <div class="flex justify-center">
-                <div class="animate-ping h-24 w-24 rounded-full bg-blue-400 opacity-75"></div>
-            </div>
-        </div>
-    </div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

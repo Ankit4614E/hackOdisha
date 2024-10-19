@@ -3,75 +3,17 @@
 {% block title %}QuickShop - Home{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-8">Welcome to QuickShop</h1>
-
-<section class="mb-12">
-    <h2 class="text-2xl font-semibold mb-4">Featured Categories</h2>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
-            <i class="fas fa-mobile-alt text-3xl mb-2 text-blue-500"></i>
-            <span class="block">Electronics</span>
-        </a>
-        <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
-            <i class="fas fa-tshirt text-3xl mb-2 text-green-500"></i>
-            <span class="block">Fashion</span>
-        </a>
-        <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
-            <i class="fas fa-utensils text-3xl mb-2 text-red-500"></i>
-            <span class="block">Groceries</span>
-        </a>
-        <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
-            <i class="fas fa-home text-3xl mb-2 text-yellow-500"></i>
-            <span class="block">Home & Living</span>
-        </a>
-        <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
-            <i class="fas fa-dumbbell text-3xl mb-2 text-purple-500"></i>
-            <span class="block">Sports</span>
-        </a>
-        <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
-            <i class="fas fa-book text-3xl mb-2 text-indigo-500"></i>
-            <span class="block">Books</span>
-        </a>
-    </div>
-</section>
-
-<section class="mb-12">
-    <h2 class="text-2xl font-semibold mb-4">Featured Products</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {% for product in products %}
-        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+<h1 class="text-3xl font-bold mb-6">Welcome to QuickShop</h1>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for product in products %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
             <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
             <div class="p-4">
                 <h2 class="text-xl font-semibold mb-2">{{ product.name }}</h2>
-                <p class="text-gray-600 mb-4">${{ "%.2f"|format(product.price) }}</p>
-                <div class="flex justify-between items-center">
-                    <a href="{{ url_for('main.product', product_id=product.id) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">View</a>
-                    <button onclick="addToCart({{ product.id }})" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Add to Cart</button>
-                </div>
+                <p class="text-gray-600 mb-2">Price: ${{ product.price }}</p>
+                <a href="{{ url_for('main.product', id=product.id) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">View Details</a>
             </div>
         </div>
-        {% endfor %}
-    </div>
-</section>
-
-<section class="mb-12">
-    <h2 class="text-2xl font-semibold mb-4">Why Choose QuickShop?</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <i class="fas fa-bolt text-4xl text-yellow-500 mb-4"></i>
-            <h3 class="text-xl font-semibold mb-2">Lightning Fast Delivery</h3>
-            <p class="text-gray-600">Get your orders delivered in minutes, not days!</p>
-        </div>
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <i class="fas fa-store text-4xl text-blue-500 mb-4"></i>
-            <h3 class="text-xl font-semibold mb-2">Support Local Stores</h3>
-            <p class="text-gray-600">Shop from your favorite local stores and support your community.</p>
-        </div>
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <i class="fas fa-user-shield text-4xl text-green-500 mb-4"></i>
-            <h3 class="text-xl font-semibold mb-2">Secure Shopping</h3>
-            <p class="text-gray-600">Your data and transactions are always safe with us.</p>
-        </div>
-    </div>
-</section>
+    {% endfor %}
+</div>
 {% endblock %}

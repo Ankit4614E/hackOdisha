@@ -98,7 +98,7 @@ document.addEventListener('click', function(event) {
 
 // Simulate getting user's location
 setTimeout(() => {
-    document.getElementById('user-location').textContent = 'Delivering to: New York, NY';
+    document.getElementById('user-location').textContent = 'Delivering to: Kolkata, West Bengal';
 }, 2000);
 
 // Initialize cart count on page load
