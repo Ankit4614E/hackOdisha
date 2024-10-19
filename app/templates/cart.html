@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-8">Your Cart</h1>
+{% if products %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    {% for product in products %}
+    <div class="flex items-center border-b border-gray-200 py-4 px-6">
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="h-16 w-16 object-cover rounded">
+        <div class="ml-4 flex-grow">
+            <h2 class="text-lg font-semibold">{{ product.name }}</h2>
+            <p class="text-gray-600">${{ "%.2f"|format(product.price) }}</p>
+        </div>
+        <button onclick="removeFromCart({{ product.id }})" class="text-red-500 hover:text-red-600">Remove</button>
+    </div>
+    {% endfor %}
+    <div class="py-4 px-6">
+        <p class="text-xl font-semibold">Total: ${{ "%.2f"|format(products|sum(attribute='price')) }}</p>
+        <button onclick="placeOrder()" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Place Order</button>
+    </div>
+</div>
+{% else %}
+<p class="text-gray-600">Your cart is empty.</p>
+{% endif %}
+{% endblock %}
