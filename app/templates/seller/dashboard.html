@@ -1,54 +1,84 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Seller Dashboard</h1>
-    <h2>Available Products</h2>
-    <ul>
-        {% for product in products %}
-            <li>{{ product.name }} - ${{ product.price }}</li>
-        {% endfor %}
-    </ul>
+<div class="container mx-auto px-4">
+    <h1 class="text-3xl font-bold mb-6">Seller Dashboard</h1>
+    <p>Welcome, {{ seller_name }}!</p>
+    
+    <div id="order-notifications" class="space-y-4"></div>
+    
+    <div id="accepted-orders" class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Accepted Orders</h2>
+        <div id="accepted-orders-list" class="space-y-4"></div>
+    </div>
+</div>
 
-    <div id="order-notifications"></div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script>
-        var socket = io('/seller');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    var socket = io('/seller');
+    
+    socket.on('new_order', function(data) {
+        var notification = document.createElement('div');
+        notification.className = 'bg-white shadow-md rounded-lg p-6 border-l-4 border-blue-500';
+        notification.innerHTML = `
+            <h3 class="text-lg font-semibold mb-2">New Order Received!</h3>
+            <p class="mb-2">Order ID: ${data.order_id}</p>
+            <p class="mb-2">Customer: ${data.user_name}</p>
+            <p class="mb-2">Product: ${data.product_name}</p>
+            <p class="mb-2">Price: ₹${data.product_price}</p>
+            <p class="mb-2">Quantity: ${data.quantity}</p>
+            <p class="mb-4">Total: ₹${data.total}</p>
+            <div class="flex space-x-4">
+                <button onclick="respondToOrder(${data.order_id}, 'accept')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Accept</button>
+                <button onclick="respondToOrder(${data.order_id}, 'decline')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Decline</button>
+            </div>
+        `;
+        document.getElementById('order-notifications').appendChild(notification);
         
-        socket.on('new_order', function(data) {
-            var notification = document.createElement('div');
-            notification.innerHTML = `
-                <p>New order for ${data.product_name}</p>
-                <button onclick="acceptOrder(${data.order_id})">Accept</button>
-            `;
-            document.getElementById('order-notifications').appendChild(notification);
-            
-            // Remove notification after 30 seconds
-            setTimeout(() => {
+        // Auto-decline after 30 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                respondToOrder(data.order_id, 'decline');
                 notification.remove();
-            }, 30000);
-        });
-        
-        socket.on('order_accepted', function(data) {
-            if (data.seller_id !== {{ current_user.id }}) {
-                var notifications = document.getElementById('order-notifications').children;
-                for (var i = 0; i < notifications.length; i++) {
-                    if (notifications[i].querySelector('button').getAttribute('onclick').includes(data.order_id)) {
-                        notifications[i].remove();
-                        break;
-                    }
+            }
+        }, 30000);
+    });
+
+    function respondToOrder(orderId, response) {
+        socket.emit('seller_response', {
+            order_id: orderId,
+            response: response,
+            seller_id: {{ session['seller_id'] }}
+        }, function(data) {
+            if (data.success) {
+                if (response === 'accept') {
+                    addAcceptedOrder(data.order);
                 }
+                // Remove only the specific notification
+                var notification = document.querySelector(`#order-notifications div:has(button[onclick*="${orderId}"])`);
+                if (notification) {
+                    notification.remove();
+                }
+            } else {
+                alert('Failed to ' + response + ' order: ' + data.message);
             }
         });
-        
-        function acceptOrder(orderId) {
-            socket.emit('accept_order', {order_id: orderId, seller_id: {{ current_user.id }}}, function(response) {
-                if (response.success) {
-                    alert('Order accepted successfully!');
-                } else {
-                    alert('Failed to accept order: ' + response.message);
-                }
-            });
-        }
-    </script>
+    }
+
+    function addAcceptedOrder(order) {
+        var orderElement = document.createElement('div');
+        orderElement.className = 'bg-white shadow-md rounded-lg p-6 border-l-4 border-green-500';
+        orderElement.innerHTML = `
+            <h3 class="text-lg font-semibold mb-2">Order #${order.id}</h3>
+            <p class="mb-2">Customer: ${order.user_name}</p>
+            <p class="mb-2">Product: ${order.product_name}</p>
+            <p class="mb-2">Price: ₹${order.product_price}</p>
+            <p class="mb-2">Quantity: ${order.quantity}</p>
+            <p class="mb-2">Total: ₹${order.total}</p>
+            <p class="mb-2">Estimated Delivery: 7 minutes</p>
+            <p>Status: Accepted</p>
+        `;
+        document.getElementById('accepted-orders-list').appendChild(orderElement);
+    }
+</script>
 {% endblock %}

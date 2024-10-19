@@ -34,11 +34,11 @@ function removeFromCart(productId) {
 }
 
 function updateCartCount() {
-    fetch('/api/cart-count')
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('cart-count').textContent = data.count;
-    });
+    fetch('/cart_count')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('cart-count').textContent = data.count;
+        });
 }
 
 function placeOrder() {
@@ -101,5 +101,5 @@ setTimeout(() => {
     document.getElementById('user-location').textContent = 'Delivering to: Kolkata, West Bengal';
 }, 2000);
 
-// Initialize cart count on page load
-updateCartCount();
+// Update cart count when the page loads
+document.addEventListener('DOMContentLoaded', updateCartCount);

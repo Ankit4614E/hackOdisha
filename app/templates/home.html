@@ -3,17 +3,75 @@
 {% block title %}QuickShop - Home{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6">Welcome to QuickShop</h1>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for product in products %}
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
-            <div class="p-4">
-                <h2 class="text-xl font-semibold mb-2">{{ product.name }}</h2>
-                <p class="text-gray-600 mb-2">Price: ${{ product.price }}</p>
-                <a href="{{ url_for('main.product', id=product.id) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">View Details</a>
+<div class="container mx-auto px-4">
+    <h1 class="text-3xl font-bold mb-6">Welcome to QuickShop</h1>
+
+    <!-- Featured Categories -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">Featured Categories</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
+                <i class="fas fa-laptop text-4xl mb-2 text-blue-500"></i>
+                <p>Electronics</p>
+            </a>
+            <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
+                <i class="fas fa-tshirt text-4xl mb-2 text-green-500"></i>
+                <p>Fashion</p>
+            </a>
+            <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
+                <i class="fas fa-home text-4xl mb-2 text-yellow-500"></i>
+                <p>Home & Living</p>
+            </a>
+            <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
+                <i class="fas fa-book text-4xl mb-2 text-red-500"></i>
+                <p>Books</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">Featured Products</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in products[:8] %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold mb-2">{{ product.name }}</h3>
+                        <p class="text-gray-600 mb-2">₹{{ product.price }}</p>
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400">
+                                {% for _ in range(product.rating|int) %}
+                                    <i class="fas fa-star"></i>
+                                {% endfor %}
+                                {% if product.rating % 1 != 0 %}
+                                    <i class="fas fa-star-half-alt"></i>
+                                {% endif %}
+                            </div>
+                            <span class="text-gray-600 ml-2">({{ product.review_count }} reviews)</span>
+                        </div>
+                        <a href="{{ url_for('main.product', id=product.id) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block">View Details</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Special Offers -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">Special Offers</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-md p-6 text-white">
+                <h3 class="text-xl font-semibold mb-2">Summer Sale</h3>
+                <p class="mb-4">Get up to 50% off on selected items!</p>
+                <a href="#" class="bg-white text-indigo-600 px-4 py-2 rounded hover:bg-gray-100">Shop Now</a>
+            </div>
+            <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg shadow-md p-6 text-white">
+                <h3 class="text-xl font-semibold mb-2">New Arrivals</h3>
+                <p class="mb-4">Check out our latest products!</p>
+                <a href="#" class="bg-white text-orange-500 px-4 py-2 rounded hover:bg-gray-100">Explore</a>
             </div>
         </div>
-    {% endfor %}
+    </section>
 </div>
 {% endblock %}
