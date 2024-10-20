@@ -82,7 +82,7 @@ sample_products = [
         <p>Whether you're a photography enthusiast, a mobile gamer, or a busy professional, Smartphone X has everything you need to stay connected and productive.</p>
         ''',
             'price': 649.99,
-            'image_url': 'https://www.justcanon.in/cdn/shop/files/R100a.jpg?v=1718108847'
+            'image_url': 'https://m.media-amazon.com/images/I/51dgMj+mulL._AC_.jpg'
     }
 ]
 

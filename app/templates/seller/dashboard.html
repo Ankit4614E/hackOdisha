@@ -3,9 +3,8 @@
 {% block content %}
 <div class="container mx-auto px-4">
     <h1 class="text-3xl font-bold mb-6">Seller Dashboard</h1>
-    <p>Welcome, {{ seller_name }}!</p>
-    
-    <div id="order-notifications" class="space-y-4"></div>
+    <p class="mb-4">Welcome, {{ current_user.username }}!</p>
+    <p class="mb-8">Seller ID: {{ current_user.id }}</p>
     
     <div id="accepted-orders" class="mt-8">
         <h2 class="text-2xl font-bold mb-4">Accepted Orders</h2>
@@ -13,52 +12,112 @@
     </div>
 </div>
 
+<!-- Order Modal -->
+<div id="order-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2 text-center">New Order Received!</h3>
+            <div class="mt-2 px-7 py-3">
+                <p id="modal-order-id" class="text-sm text-gray-500 flex items-center mb-2">
+                    <i class="fas fa-hashtag mr-2"></i>
+                    <span></span>
+                </p>
+                <p id="modal-customer" class="text-sm text-gray-500 flex items-center mb-2">
+                    <i class="fas fa-user mr-2"></i>
+                    <span></span>
+                </p>
+                <p id="modal-product" class="text-sm text-gray-500 flex items-center mb-2">
+                    <i class="fas fa-box mr-2"></i>
+                    <span></span>
+                </p>
+                <p id="modal-price" class="text-sm text-gray-500 flex items-center mb-2">
+                    <i class="fas fa-tag mr-2"></i>
+                    <span></span>
+                </p>
+                <p id="modal-quantity" class="text-sm text-gray-500 flex items-center mb-2">
+                    <i class="fas fa-cubes mr-2"></i>
+                    <span></span>
+                </p>
+                <p id="modal-total" class="text-sm text-gray-500 flex items-center mb-2">
+                    <i class="fas fa-rupee-sign mr-2"></i>
+                    <span></span>
+                </p>
+            </div>
+            <div id="modal-timer" class="mt-2 text-xl font-bold text-red-500 text-center"></div>
+            <div class="items-center px-4 py-3">
+                <button id="modal-accept" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 mb-2">
+                    <i class="fas fa-check mr-2"></i>Accept
+                </button>
+                <button id="modal-decline" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                    <i class="fas fa-times mr-2"></i>Decline
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 <script>
     var socket = io('/seller');
+    var currentOrderId = null;
+    var timerInterval = null;
+    
+    socket.on('connect', function() {
+        socket.emit('join', {seller_id: '{{ current_user.id }}'});
+    });
     
     socket.on('new_order', function(data) {
-        var notification = document.createElement('div');
-        notification.className = 'bg-white shadow-md rounded-lg p-6 border-l-4 border-blue-500';
-        notification.innerHTML = `
-            <h3 class="text-lg font-semibold mb-2">New Order Received!</h3>
-            <p class="mb-2">Order ID: ${data.order_id}</p>
-            <p class="mb-2">Customer: ${data.user_name}</p>
-            <p class="mb-2">Product: ${data.product_name}</p>
-            <p class="mb-2">Price: ₹${data.product_price}</p>
-            <p class="mb-2">Quantity: ${data.quantity}</p>
-            <p class="mb-4">Total: ₹${data.total}</p>
-            <div class="flex space-x-4">
-                <button onclick="respondToOrder(${data.order_id}, 'accept')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Accept</button>
-                <button onclick="respondToOrder(${data.order_id}, 'decline')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Decline</button>
-            </div>
-        `;
-        document.getElementById('order-notifications').appendChild(notification);
+        // Check if we're already handling this order
+        if (currentOrderId === data.order_id) {
+            return;
+        }
         
-        // Auto-decline after 30 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                respondToOrder(data.order_id, 'decline');
-                notification.remove();
+        currentOrderId = data.order_id;
+        document.getElementById('modal-order-id').querySelector('span').textContent = `Order ID: ${data.order_id}`;
+        document.getElementById('modal-customer').querySelector('span').textContent = `Customer: ${data.user_name}`;
+        document.getElementById('modal-product').querySelector('span').textContent = `Product: ${data.product_name}`;
+        document.getElementById('modal-price').querySelector('span').textContent = `Price: ₹${data.product_price}`;
+        document.getElementById('modal-quantity').querySelector('span').textContent = `Quantity: ${data.quantity}`;
+        document.getElementById('modal-total').querySelector('span').textContent = `Total: ₹${data.total}`;
+        
+        document.getElementById('order-modal').classList.remove('hidden');
+        
+        clearInterval(timerInterval);  // Clear any existing interval
+        let timeLeft = 30;
+        document.getElementById('modal-timer').textContent = `Time left: ${timeLeft}s`;
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            document.getElementById('modal-timer').textContent = `Time left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                respondToOrder(currentOrderId, 'decline');
             }
-        }, 30000);
+        }, 1000);
+    });
+
+    document.getElementById('modal-accept').addEventListener('click', function() {
+        respondToOrder(currentOrderId, 'accept');
+    });
+
+    document.getElementById('modal-decline').addEventListener('click', function() {
+        respondToOrder(currentOrderId, 'decline');
     });
 
     function respondToOrder(orderId, response) {
+        clearInterval(timerInterval);
+        document.getElementById('order-modal').classList.add('hidden');
+        
         socket.emit('seller_response', {
             order_id: orderId,
             response: response,
-            seller_id: {{ session['seller_id'] }}
+            seller_id: {{ current_user.id }}
         }, function(data) {
             if (data.success) {
                 if (response === 'accept') {
                     addAcceptedOrder(data.order);
                 }
-                // Remove only the specific notification
-                var notification = document.querySelector(`#order-notifications div:has(button[onclick*="${orderId}"])`);
-                if (notification) {
-                    notification.remove();
-                }
+                alert(`Order ${response}ed successfully!`);
+                currentOrderId = null;  // Reset the current order ID
             } else {
                 alert('Failed to ' + response + ' order: ' + data.message);
             }
@@ -70,13 +129,13 @@
         orderElement.className = 'bg-white shadow-md rounded-lg p-6 border-l-4 border-green-500';
         orderElement.innerHTML = `
             <h3 class="text-lg font-semibold mb-2">Order #${order.id}</h3>
-            <p class="mb-2">Customer: ${order.user_name}</p>
-            <p class="mb-2">Product: ${order.product_name}</p>
-            <p class="mb-2">Price: ₹${order.product_price}</p>
-            <p class="mb-2">Quantity: ${order.quantity}</p>
-            <p class="mb-2">Total: ₹${order.total}</p>
-            <p class="mb-2">Estimated Delivery: 7 minutes</p>
-            <p>Status: Accepted</p>
+            <p class="mb-2"><i class="fas fa-user mr-2"></i>Customer: ${order.user_name}</p>
+            <p class="mb-2"><i class="fas fa-box mr-2"></i>Product: ${order.product_name}</p>
+            <p class="mb-2"><i class="fas fa-tag mr-2"></i>Price: ₹${order.product_price}</p>
+            <p class="mb-2"><i class="fas fa-cubes mr-2"></i>Quantity: ${order.quantity}</p>
+            <p class="mb-2"><i class="fas fa-rupee-sign mr-2"></i>Total: ₹${order.total}</p>
+            <p class="mb-2"><i class="fas fa-clock mr-2"></i>Estimated Delivery: 7 minutes</p>
+            <p><i class="fas fa-check-circle mr-2 text-green-500"></i>Status: Accepted</p>
         `;
         document.getElementById('accepted-orders-list').appendChild(orderElement);
     }

@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 *.db
+app/flask_session/
 
 # Distribution / packaging
 .Python

@@ -164,7 +164,7 @@ def handle_seller_response(data):
                 'total': order.product.price * order.quantity
             }}
         elif response == 'decline':
-            # If declined, notify other sellers again
+            # If declined, notify other sellers again, excluding the one who just declined
             socketio.emit('new_order', {
                 'order_id': order.id,
                 'user_id': order.user_id,
@@ -173,7 +173,12 @@ def handle_seller_response(data):
                 'product_price': order.product.price,
                 'quantity': order.quantity,
                 'total': order.product.price * order.quantity
-            }, namespace='/seller')
+            }, namespace='/seller', skip_sid=request.sid)  # Skip the current seller
             return {'success': True}
     
     return {'success': False, 'message': 'Order not found or already processed'}
+
+@socketio.on('join', namespace='/seller')
+def on_seller_join(data):
+    seller_id = data['seller_id']
+    join_room(seller_id)
