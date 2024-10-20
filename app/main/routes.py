@@ -153,7 +153,8 @@ def handle_seller_response(data):
             socketio.emit('order_accepted', {
                 'order_id': order_id,
                 'seller_name': seller.company_name,
-                'estimated_delivery': (datetime.utcnow() + timedelta(minutes=7)).isoformat()
+                'seller_phone': seller.phone_number if hasattr(seller, 'phone_number') else None,
+                'estimated_delivery': 7  # Fixed 7 minutes for now
             }, room=str(order.user_id), namespace='/buyer')
             return {'success': True, 'order': {
                 'id': order.id,
@@ -182,3 +183,4 @@ def handle_seller_response(data):
 def on_seller_join(data):
     seller_id = data['seller_id']
     join_room(seller_id)
+
