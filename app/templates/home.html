@@ -1,14 +1,37 @@
 {% extends "base.html" %}
 
-{% block title %}QuickShop - Home{% endblock %}
+{% block title %}QuickShop - Your One-Stop Shop{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4">
-    <h1 class="text-3xl font-bold mb-6">Welcome to QuickShop</h1>
+    <!-- Address Bar -->
+    <div class="bg-gray-100 p-2 mb-4 rounded-lg flex items-center justify-between">
+        <div class="flex items-center">
+            <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+            <span class="text-sm">Deliver to: <span class="font-semibold">Kolkata, West Bengal 700001</span></span>
+        </div>
+        <button class="text-blue-500 text-sm hover:underline">Change</button>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg shadow-lg p-8 mb-8">
+        <h1 class="text-4xl font-bold mb-4">Welcome to QuickShop</h1>
+        <p class="text-xl mb-6">Discover amazing deals on all your favorite products!</p>
+        <a href="#featured-products" class="bg-white text-indigo-600 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300">Shop Now</a>
+    </div>
+
+    <!-- Flash Sale Banner -->
+    <div class="bg-red-600 text-white p-4 rounded-lg mb-8 flex items-center justify-between">
+        <div>
+            <h2 class="text-2xl font-bold">Flash Sale! 50% OFF</h2>
+            <p>Limited time offer on selected items</p>
+        </div>
+        <div class="text-3xl font-bold" id="countdown">24:00:00</div>
+    </div>
 
     <!-- Featured Categories -->
     <section class="mb-12">
-        <h2 class="text-2xl font-semibold mb-4">Featured Categories</h2>
+        <h2 class="text-2xl font-semibold mb-4">Shop by Category</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <a href="#" class="bg-white rounded-lg shadow-md p-4 text-center hover:shadow-lg transition duration-300">
                 <i class="fas fa-laptop text-4xl mb-2 text-blue-500"></i>
@@ -30,7 +53,7 @@
     </section>
 
     <!-- Featured Products -->
-    <section class="mb-12">
+    <section class="mb-12" id="featured-products">
         <h2 class="text-2xl font-semibold mb-4">Featured Products</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {% for product in products[:8] %}
@@ -50,7 +73,7 @@
                             </div>
                             <span class="text-gray-600 ml-2">({{ product.review_count }} reviews)</span>
                         </div>
-                        <a href="{{ url_for('main.product', id=product.id) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block">View Details</a>
+                        <a href="{{ url_for('main.product', id=product.id) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block w-full text-center">View Details</a>
                     </div>
                 </div>
             {% endfor %}
@@ -61,10 +84,10 @@
     <section class="mb-12">
         <h2 class="text-2xl font-semibold mb-4">Special Offers</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-md p-6 text-white">
+            <div class="bg-gradient-to-r from-pink-500 to-red-500 rounded-lg shadow-md p-6 text-white">
                 <h3 class="text-xl font-semibold mb-2">Summer Sale</h3>
                 <p class="mb-4">Get up to 50% off on selected items!</p>
-                <a href="#" class="bg-white text-indigo-600 px-4 py-2 rounded hover:bg-gray-100">Shop Now</a>
+                <a href="#" class="bg-white text-red-500 px-4 py-2 rounded hover:bg-gray-100">Shop Now</a>
             </div>
             <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg shadow-md p-6 text-white">
                 <h3 class="text-xl font-semibold mb-2">New Arrivals</h3>
@@ -73,5 +96,53 @@
             </div>
         </div>
     </section>
+
+    <!-- Testimonials -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">What Our Customers Say</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <p class="mb-4">"Great products and fast delivery. I'm a happy customer!"</p>
+                <p class="font-semibold">- John D.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <p class="mb-4">"The quality of the items exceeded my expectations. Will shop again!"</p>
+                <p class="font-semibold">- Sarah M.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <p class="mb-4">"Excellent customer service. They resolved my issue quickly."</p>
+                <p class="font-semibold">- Robert K.</p>
+            </div>
+        </div>
+    </section>
 </div>
+
+<script>
+    // Countdown Timer for Flash Sale
+    function updateCountdown() {
+        const countdownElement = document.getElementById('countdown');
+        let time = countdownElement.innerText;
+        let [hours, minutes, seconds] = time.split(':').map(Number);
+
+        if (seconds > 0) {
+            seconds--;
+        } else if (minutes > 0) {
+            minutes--;
+            seconds = 59;
+        } else if (hours > 0) {
+            hours--;
+            minutes = 59;
+            seconds = 59;
+        }
+
+        countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        if (hours === 0 && minutes === 0 && seconds === 0) {
+            clearInterval(countdownInterval);
+            countdownElement.innerText = "Sale Ended!";
+        }
+    }
+
+    const countdownInterval = setInterval(updateCountdown, 1000);
+</script>
 {% endblock %}
